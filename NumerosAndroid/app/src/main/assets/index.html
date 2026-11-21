@@ -34,9 +34,28 @@ function atualizarTela(){
  document.body.style.backgroundColor=cores[atual%cores.length];
  falarNumero(atual)
 }
-function avancar(){atual=atual<100?atual+1:0;atualizarTela()}
-function voltar(){if(atual>0){atual--;atualizarTela()}}
-function resetar(){atual=0;atualizarTela()}
+// Depois de uma mudança de número, qualquer nova mudança só é reconhecida 2 segundos depois.
+const INTERVALO_ENTRE_NUMEROS_MS=2000;
+let proximaTrocaPermitidaEm=0;
+function podeTrocarNumero(){
+ const agora=performance.now();
+ if(agora<proximaTrocaPermitidaEm)return false;
+ proximaTrocaPermitidaEm=agora+INTERVALO_ENTRE_NUMEROS_MS;
+ return true;
+}
+function avancar(){
+ if(!podeTrocarNumero())return;
+ atual=atual<100?atual+1:0;
+ atualizarTela();
+}
+function voltar(){
+ if(atual>0&&podeTrocarNumero()){atual--;atualizarTela()}
+}
+function resetar(){
+ atual=0;
+ proximaTrocaPermitidaEm=performance.now()+INTERVALO_ENTRE_NUMEROS_MS;
+ atualizarTela();
+}
 function alternarVoz(){
  vozAtiva=!vozAtiva;btnVoz.innerText=vozAtiva?'🔊 Voz':'🔇 Mudo';
  if(!vozAtiva){if(window.AndroidVoz&&typeof window.AndroidVoz.pararFala==='function')window.AndroidVoz.pararFala();else if('speechSynthesis' in window)window.speechSynthesis.cancel()}

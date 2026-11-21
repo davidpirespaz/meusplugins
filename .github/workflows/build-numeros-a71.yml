@@ -34,9 +34,9 @@ jobs:
         APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
         "$APKSIGNER" verify --verbose --print-certs "$APK"
     - name: Nomear APK
-      run: cp NumerosAndroid/app/build/outputs/apk/debug/app-debug.apk Numeros_0_a_100_Galaxy_A71.apk
+      run: cp NumerosAndroid/app/build/outputs/apk/debug/app-debug.apk Numeros_0_a_100_Galaxy_A71_2s.apk
     - uses: actions/upload-artifact@v4
       with:
-        name: APK_Numeros_0_a_100_Galaxy_A71
-        path: Numeros_0_a_100_Galaxy_A71.apk
+        name: APK_Numeros_0_a_100_Galaxy_A71_2s
+        path: Numeros_0_a_100_Galaxy_A71_2s.apk
         retention-days: 30

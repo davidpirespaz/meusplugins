@@ -157,14 +157,14 @@ public final class DownloadService extends Service {
                 String processId="audio15_"+System.nanoTime();
                 currentProcessId=processId;
                 lastPercent=-1;
-                YoutubeDL.getInstance().execute(req,(pct,eta,line)->{
+                YoutubeDL.getInstance().execute(req,processId,(pct,eta,line)->{
                     int percentage=Math.max(0,Math.min(100,pct.intValue()));
                     if(percentage!=lastPercent) {
                         lastPercent=percentage;
                         report("Baixando áudio: "+percentage+"%",percentage,true);
                     }
                     return kotlin.Unit.INSTANCE;
-                },processId);
+                });
                 currentProcessId=null;
                 File[] files=workDir.listFiles(file->file.isFile()&&file.getName().startsWith("origem."));
                 if(files==null||files.length==0)throw new Exception("Nenhuma faixa de áudio encontrada");

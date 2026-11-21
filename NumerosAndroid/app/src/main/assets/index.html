@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Números de 0 a 100</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100dvh;width:100vw;margin:0;background:#FF6B6B;color:#fff;font-family:'Arial Rounded MT Bold','Comic Sans MS',Arial,sans-serif;user-select:none;cursor:pointer;transition:background-color .3s ease;overflow:hidden;touch-action:manipulation}
+#numero{max-width:100%;font-size:60vmin;font-weight:bold;line-height:1;text-shadow:4px 4px 0 rgba(0,0,0,.2);text-align:center}
+.controles{position:absolute;top:16px;right:16px;display:flex;gap:8px;z-index:10}
+button{min-height:44px;padding:10px 14px;font-size:14px;font-weight:bold;cursor:pointer;background:rgba(0,0,0,.45);color:#fff;border:2px solid white;border-radius:12px;box-shadow:0 3px 6px rgba(0,0,0,.2)}
+button:active{transform:scale(.95);background:rgba(0,0,0,.75)}
+</style></head>
+<body onclick="cliqueNaTela()">
+<div class="controles" onclick="event.stopPropagation()">
+<button type="button" id="btnVoz" onclick="alternarVoz()">🔊 Voz</button>
+<button type="button" onclick="resetar()">🔄 Início (0)</button>
+</div>
+<div id="numero" role="status" aria-live="off">0</div>
+<script>
+let atual=0,vozAtiva=true;
+const visor=document.getElementById('numero'),btnVoz=document.getElementById('btnVoz');
+const cores=['#FF6B6B','#4ECDC4','#45B7D1','#2ECC71','#F39C12','#9B59B6','#3498DB','#E84393','#16A085','#E67E22'];
+function falarNumero(num){
+ if(!vozAtiva)return;
+ if(window.AndroidVoz&&typeof window.AndroidVoz.falarNumero==='function'){window.AndroidVoz.falarNumero(String(num));return}
+ if(!('speechSynthesis' in window))return;
+ window.speechSynthesis.cancel();
+ const fala=new SpeechSynthesisUtterance(String(num));fala.lang='pt-BR';fala.rate=.9;window.speechSynthesis.speak(fala)
+}
+function atualizarTela(){
+ visor.innerText=atual;
+ visor.style.fontSize=atual===100?'34vmin':atual>=10?'48vmin':'62vmin';
+ document.body.style.backgroundColor=cores[atual%cores.length];
+ falarNumero(atual)
+}
+function avancar(){atual=atual<100?atual+1:0;atualizarTela()}
+function voltar(){if(atual>0){atual--;atualizarTela()}}
+function resetar(){atual=0;atualizarTela()}
+function alternarVoz(){
+ vozAtiva=!vozAtiva;btnVoz.innerText=vozAtiva?'🔊 Voz':'🔇 Mudo';
+ if(!vozAtiva){if(window.AndroidVoz&&typeof window.AndroidVoz.pararFala==='function')window.AndroidVoz.pararFala();else if('speechSynthesis' in window)window.speechSynthesis.cancel()}
+ if(vozAtiva)falarNumero(atual)
+}
+let toqueInicioX=0,toqueInicioY=0,suprimirCliqueAte=0;
+function cliqueNaTela(){if(Date.now()<suprimirCliqueAte)return;avancar()}
+document.addEventListener('touchstart',e=>{toqueInicioX=e.changedTouches[0].screenX;toqueInicioY=e.changedTouches[0].screenY},{passive:true});
+document.addEventListener('touchend',e=>{
+ if(e.target.closest('.controles'))return;
+ const dx=toqueInicioX-e.changedTouches[0].screenX,dy=toqueInicioY-e.changedTouches[0].screenY;
+ if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){suprimirCliqueAte=Date.now()+550;e.preventDefault();if(dx>0)avancar();else voltar()}
+},{passive:false});
+document.addEventListener('keydown',e=>{
+ if(e.code==='Space'||e.code==='ArrowRight')avancar();
+ if(e.code==='ArrowLeft')voltar();
+ if(e.key==='r'||e.key==='R')resetar()
+});
+</script></body></html>
